@@ -20,7 +20,7 @@ void setup()
 void loop() 
 {
   digitalWrite(DIR, HIGH);		// giro en un sentido
-  for(int i = 0; i < 100; i++){   	// 200 pasos para motor de 0.9 grados de angulo de paso
+  for(int i = 0; i < 200; i++){   	// 200 pasos para motor de 1.80 grados de angulo de paso
     digitalWrite(STEP, HIGH);     	// nivel alto
     delay(10);			  	// por 10 mseg
     digitalWrite(STEP, LOW);      	// nivel bajo
