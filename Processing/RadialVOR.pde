@@ -3,14 +3,15 @@ float angle = 0;
 float amplitude = 50; 
 float radial = 0; 
 int x = 180; 
-Serial mi_puerto;      // Inicializamos la variable mi_puerto
+Serial mi_puerto;  // Inicializamos la variable mi_puerto
+String serialData = "";  // Para almacenar los datos seriales recibidos
 
 void setup() {
   size(500, 500);  
   smooth();
   textAlign(CENTER, CENTER);
   mi_puerto = new Serial(this, "COM5", 115200);
-  mi_puerto.bufferUntil ( '\n' );   // Reciviendo los datos de Arduino
+  mi_puerto.bufferUntil('\n');  // Recibiendo los datos de Arduino
 }
 
 void draw() {
@@ -32,7 +33,7 @@ void draw() {
   // Dibuja la flecha vertical fija en el centro
   drawVerticalArrow();
 
-  //Dibuja la linea horizontal
+  // Dibuja la línea horizontal
   horizontalPoints();
 }
 
@@ -88,13 +89,6 @@ void drawVerticalArrow() {
 }
 
 void keyPressed() {
-  /*
-  if (keyCode == LEFT) {
-    if (radial == -360) {
-      radial = 0.0;
-    }
-    radial -= 9; 
-    println(radial); */
   if (keyCode == RIGHT) {
     if (radial == 360) {
       radial = 0.0;
@@ -121,7 +115,7 @@ void drawAprox(){
   if(radial == x){
     line(estatic, vy1, estatic, vy2);
   }
-  //Valores pasando x
+  // Valores pasando x
   else if(radial == x + 9*1){line(estatic-20, vy1, estatic-20, vy2);}
   else if(radial == x + 9*2){line(estatic-40, vy1, estatic-40, vy2);}
   else if(radial == x + 9*3){line(estatic-60, vy1, estatic-60, vy2);}
@@ -129,16 +123,22 @@ void drawAprox(){
   else if(radial == x + 9*5){line(estatic-100, vy1, estatic-100, vy2);}
   else if (radial >= x + 9*6){line(estatic-100, vy1, estatic-100, vy2);}
   
-  //Valores anteriores a x
+  // Valores anteriores a x
   else if(radial == x - 9*1){line(estatic+20, vy1, estatic+20, vy2);}
   else if(radial == x - 9*2){line(estatic+40, vy1, estatic+40, vy2);}
   else if(radial == x - 9*3){line(estatic+60, vy1, estatic+60, vy2);}
   else if(radial == x - 9*4){line(estatic+80, vy1, estatic+80, vy2);}
   else if(radial == x - 9*5){line(estatic+100, vy1, estatic+100, vy2);}
   else if (radial <= x - 9*6){line(estatic+100, vy1, estatic+100, vy2);}
-    
 }
 
-void serialEvent  (Serial mi_puerto) {
-  radial  =  float (mi_puerto.readStringUntil ( '\n' ) ) ; 
-} 
+void serialEvent(Serial mi_puerto) {
+  serialData = mi_puerto.readStringUntil('\n');
+  if (serialData != null) {
+    String[] values = trim(split(serialData, ','));  // Divide los valores recibidos
+    if (values.length == 2) {
+      radial = float(values[0]);  // Primer valor es el del potenciómetro
+      x = int(values[1]);         // Segundo valor es el número aleatorio
+    }
+  }
+}
