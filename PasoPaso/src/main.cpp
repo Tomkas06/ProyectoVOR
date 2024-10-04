@@ -26,14 +26,9 @@ void loop()
     digitalWrite(STEP, LOW);      	// nivel bajo
     delay(10);			  	// por 10 mseg
   }
-  delay(2000);			  	// demora de 2 segundos
 
-  digitalWrite(DIR, LOW);	  	// giro en sentido opuesto
-  for(int i = 0; i < 200; i++){
-    digitalWrite(STEP, HIGH); 
-    delay(10);
-    digitalWrite(STEP, LOW);
-    delay(10);
-  }
-  delay(2000);			  	// demora de 2 segundos
+  
+
+  
+  //delay(1000);			  	// demora de 2 segundos
 }
