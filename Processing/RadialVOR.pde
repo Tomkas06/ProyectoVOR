@@ -1,24 +1,26 @@
 import processing.serial.*;
 float angle = 0; 
-float amplitude = 50; 
-float radial = 0; 
-int x = 180; 
+float amplitude = 50; //No se, fue uno de los primeros vaores que estaban
+float radial = 0; //Valor actual del radial
+int distance = 20; //Valor de distancia dado por el ultrasonico
+int x = 180; //VAlores dados por el motor paso a paso, ¿Por que no lo llamo mas facil? no enias ganas
 Serial mi_puerto;  // Inicializamos la variable mi_puerto
 String serialData = "";  // Para almacenar los datos seriales recibidos
 
 void setup() {
-  size(500, 500);  
-  smooth();
-  textAlign(CENTER, CENTER);
-  mi_puerto = new Serial(this, "COM5", 115200);
-  mi_puerto.bufferUntil('\n');  // Recibiendo los datos de Arduino
+  size(800, 700);  // Ventana más grande (ancho 800, alto 500)
+  //fullScreen();
+  smooth();//NI idea, lo meti por facha
+  textAlign(CENTER, CENTER); //Centra el texto
+  //mi_puerto = new Serial(this, "COM5", 115200); //Aqui lo llamo al arduino y le pido los valores que tiene
+  //mi_puerto.bufferUntil('\n');  // Recibiendo los datos de Arduino
 }
 
 void draw() {
   background(0);  
-  translate(width / 2, height / 2); 
-
-  // Dibujar el círculo en el centro y rotarlo
+  translate(width / 2 + 150, height / 2);  // Desplazar todo hacia la derecha
+  
+  // Dibujar el círculo en el centro y rotarlo con el potenciomnetro
   pushMatrix();
   rotate(-radial * PI / 180); 
   stroke(255);
@@ -35,8 +37,17 @@ void draw() {
 
   // Dibuja la línea horizontal
   horizontalPoints();
+  
+  // Dibujar el rectángulo en el lado izquierdo
+  drawLeftRectangle();
 }
 
+//Dibuja el compaz o rosa de los vientos
+//NO comprendo para nada todo lo que me tiro chat GPT
+//Alto topo ademas, le preguntaba algo y hacia cualquier cosa
+//No fue facial hablarle
+//Pero mas dificil es hablarle a una chica
+//Por lo que no digo nada
 void drawCompass() {
   strokeWeight(1);
   for (int i = 0; i < 360; i += 9) {  // Cambiado a 9 grados
@@ -63,6 +74,7 @@ void drawCompass() {
   text("W", -170, 0);
 }
 
+//Dibuja la flecha vertical
 void drawVerticalArrow() {
   float length = 100; 
   
@@ -88,6 +100,8 @@ void drawVerticalArrow() {
   triangle(-10, y1, 10, y1, 0, y1 - 20); 
 }
 
+//Mueve el radial hacia la derecha si se presiona
+//Se usa en caso de que el potenciometro no este conectado
 void keyPressed() {
   if (keyCode == RIGHT) {
     if (radial == 360) {
@@ -98,6 +112,7 @@ void keyPressed() {
   }
 }
 
+//Funcion que dibuja los ciculos horinzoltales de la rosa de los vientos
 void horizontalPoints() {
   fill(255, 255, 255);
   for (int i = 2; i <= 10; i += 2) {
@@ -106,39 +121,98 @@ void horizontalPoints() {
   }
 }
 
-void drawAprox(){
+//Funcion que dibuja la barra de aproximacion, moviendose hacia dentro si se acerca o hacia afuera si se aleja
+//PROHIBIDO PREGUNTAR QUE HACE CADA COSA
+//tampoco modifiquen esto, no entinedo un carajo que hace cada cosa
+void drawAprox() {
+  //Valores para simplificar el proceso
   int vy1 = 10;
   int vy2 = -50;
   int estatic = 0;
   stroke(255, 255, 0); // Color de la línea amarilla
 
-  if(radial == x){
-    line(estatic, vy1, estatic, vy2);
+  float diferencia = radial - x;
+  float steps = diferencia / 9;
+
+  if (abs(steps) > 6) {
+    steps = steps > 0 ? 6 : -6;
   }
-  // Valores pasando x
-  else if(radial == x + 9*1){line(estatic-20, vy1, estatic-20, vy2);}
-  else if(radial == x + 9*2){line(estatic-40, vy1, estatic-40, vy2);}
-  else if(radial == x + 9*3){line(estatic-60, vy1, estatic-60, vy2);}
-  else if(radial == x + 9*4){line(estatic-80, vy1, estatic-80, vy2);}
-  else if(radial == x + 9*5){line(estatic-100, vy1, estatic-100, vy2);}
-  else if (radial >= x + 9*6){line(estatic-100, vy1, estatic-100, vy2);}
   
-  // Valores anteriores a x
-  else if(radial == x - 9*1){line(estatic+20, vy1, estatic+20, vy2);}
-  else if(radial == x - 9*2){line(estatic+40, vy1, estatic+40, vy2);}
-  else if(radial == x - 9*3){line(estatic+60, vy1, estatic+60, vy2);}
-  else if(radial == x - 9*4){line(estatic+80, vy1, estatic+80, vy2);}
-  else if(radial == x - 9*5){line(estatic+100, vy1, estatic+100, vy2);}
-  else if (radial <= x - 9*6){line(estatic+100, vy1, estatic+100, vy2);}
+  line(estatic - steps * 20, vy1, estatic - steps * 20, vy2);
 }
 
+//Funcion que dibuja el rectangulo
+void drawLeftRectangle() {
+  //Valores de los rectangulos, x para la base, y para la altura
+  int xRec = 350;
+  int yRec = 150;
+  int espaciado = 20;
+  
+  noFill();  // Sin relleno
+  stroke(255, 255, 255);  // Bordes rojos
+  strokeWeight(3);  // Grosor del borde
+  translate(-width + 270, -70); //Translado todo a la izquierda del cuadro
+  rect(0, 0, xRec, yRec, 10);  // Rectángulo más pequeño y centrado en el eje vertical
+  
+  //Valores de separacion de los textos
+  //Para que no esten pegados y no repetir valores
+  float espacio = 37.5;
+  int col = 25;
+  int linea = 50;
+  
+  // Primer bloque de texto para Distance
+  textAlign(CENTER, CENTER);  // Centrar texto
+  fill(255);  // Color blanco para el texto
+  color redText = color(255, 0, 0);  // Rojo para los enunciados
+  color yellowText = color(255, 255, 0);  // Amarillo para los valores
+  
+  fill(255, 255, 255);
+  text("DME INSTRUMENT", 175, -20);
+
+  //Textos dentro del rectangulo
+  fill(redText);  // Color rojo para el texto de los enunciados
+  text("DISTANCE", col + espacio + linea / 2, yRec / 2 - 20);  // Texto de la distancia de la aeronave con respecto al VOR
+  
+  fill(yellowText);  // Color amarillo para los valores
+  text(distance + " nm", col + espacio + linea / 2, yRec / 2 + 10);  // Texto del valor de la distancia de la aeronave con respecto al VOR
+
+  // Segundo bloque de texto para Speed
+  fill(redText);  // Color rojo para el enunciado
+  text("SPEED", col + espacio + linea + espacio + linea / 2, yRec / 2 - 20);  // Texto de la velocidad de la aeronave
+  
+  fill(yellowText);  // Color amarillo para el valor
+  text("100 kt", col + espacio + linea + espacio + linea / 2, yRec / 2 + 10); // Texto del valor de la velocidad de la aeronave
+
+  // Tercer bloque de texto para Time
+  fill(redText);  // Color rojo para el enunciado
+  text("TIME", col + espacio + linea + espacio + linea + espacio + linea / 2, yRec / 2 - 20); // Texto del tiempo de llegada
+  
+  fill(yellowText);  // Color amarillo para el valor
+  text((distance * 100) + " min", col + espacio + linea + espacio + linea + espacio + linea / 2, yRec / 2 + 10); // Texto del valor del tiempo de llegada
+  
+  
+  fill(255, 255, 255);
+  text("MADE BY EETA N32", 170, 130);
+  
+  noFill();  // no rellena con colores los circulos en la esquina del rectangulo
+  circle(espaciado, espaciado, 10); //Circulo en la esquina superior izquierda
+  circle(xRec-espaciado, espaciado, 10); //Circulo en la esquina superior derecha
+  circle(xRec-espaciado, yRec-espaciado, 10); //Circulo en la esquina inferior derecha
+  circle(espaciado, yRec-espaciado, 10); //Circulo en la esquina inferior izquierda
+}
+
+//Crea una funcion en la que analiza todos los valores del arduino
 void serialEvent(Serial mi_puerto) {
+  //El valor recibido por el arduino lo lee hasta un salto de linea
   serialData = mi_puerto.readStringUntil('\n');
+  //Verifica que los valores no sean null osea nulos o vacios
   if (serialData != null) {
     String[] values = trim(split(serialData, ','));  // Divide los valores recibidos
-    if (values.length == 2) {
+    //Comprueba si los valores recibidos son mayores a 3 elementos
+    if (values.length == 3) {
       radial = float(values[0]);  // Primer valor es el del potenciómetro
-      x = int(values[1]);         // Segundo valor es el número aleatorio
+      x = int(values[1]);         // Segundo valor es el motor paso a paso
+      if (int(values[2]) != 0){distance = int(values[2]);}  // Tercer valor es el sensor ultrasonico
     }
   }
 }

@@ -1,23 +1,48 @@
 #include <Arduino.h>
+#include "BasicStepperDriver.h"
 
-#define STEP 4			// pin STEP de A4988 a pin 4
-#define DIR 5			// pin DIR de A4988 a pin 5
+#define MOTOR_STEPS 200  // Pasos por revolución (200 pasos = 1.8° por paso)
+#define RPM 120
+#define MICROSTEPS 1
 
-void setup() 
-{
-  pinMode(STEP, OUTPUT);	// pin 4 como salida
-  pinMode(DIR, OUTPUT);		// pin 5 como salida
+#define DIR_PIN 5
+#define STEP_PIN 4
+
+BasicStepperDriver stepper(MOTOR_STEPS, DIR_PIN, STEP_PIN);
+
+int stepCount = 0;  // Contador de pasos
+int totalSteps = 200;  // Pasos para una vuelta completa
+
+// Variable para almacenar el ángulo en grados
+float currentAngle = 0;
+
+void setup() {
+    stepper.begin(RPM, MICROSTEPS);
+    Serial.begin(115200);  // Inicia la comunicación con el Monitor Serial
 }
 
-void loop() 
-{
-  digitalWrite(DIR, HIGH);		// giro en un sentido
-  for(int i = 0; i < 200; i++){   	// 200 pasos para motor de 1.80 grados de angulo de paso
-    digitalWrite(STEP, HIGH);     	// nivel alto
-    delay(10);			  	// por 10 mseg
-    digitalWrite(STEP, LOW);      	// nivel bajo
-    delay(10);			  	// por 10 mseg
-  }
-  
-  //delay(1000);			  	// demora de 2 segundos
+void loop() {
+    // Mover en incrementos de 9 grados (5 pasos)
+    if (stepCount < totalSteps) {
+        stepper.move(5);  // Mover 5 pasos = 9 grados
+        stepCount += 5;   // Aumenta el contador de pasos
+        currentAngle = stepCount * 1.8;  // Calcula el ángulo actual
+    } 
+    // Cuando ha completado una vuelta completa, moverse en sentido opuesto
+    else if (stepCount >= totalSteps && stepCount < totalSteps * 2) {
+        stepper.move(-5);  // Mover en sentido inverso 5 pasos = 9 grados hacia atrás
+        stepCount += 5;    // Contador sigue aumentando en pasos negativos
+        currentAngle = 360 - (stepCount - totalSteps) * 1.8;  // Calcula el ángulo en reversa
+    } 
+    
+    // Si ya ha hecho 360 grados en ambos sentidos, reinicia el ciclo
+    if (stepCount >= totalSteps * 2) {
+        stepCount = 0;  // Reinicia el conteo de pasos
+        delay(2000);    // Pausa de 2 segundos
+    }
+
+    // Imprime el ángulo actual en el Monitor Serial
+    Serial.println(currentAngle);
+    
+    delay(500);  // Pausa entre movimientos
 }
