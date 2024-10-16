@@ -2,23 +2,23 @@ import processing.serial.*;
 float angle = 0; 
 float amplitude = 50; //No se, fue uno de los primeros vaores que estaban
 float radial = 0; //Valor actual del radial
-int distance = 20; //Valor de distancia dado por el ultrasonico
+float distance = 200; //Valor de distancia dado por el ultrasonico
 int x = 180; //VAlores dados por el motor paso a paso, ¿Por que no lo llamo mas facil? no enias ganas
 Serial mi_puerto;  // Inicializamos la variable mi_puerto
 String serialData = "";  // Para almacenar los datos seriales recibidos
 
 void setup() {
-  size(800, 700);  // Ventana más grande (ancho 800, alto 500)
-  //fullScreen();
+  //size(800, 700);  // Ventana más grande (ancho 800, alto 500)
+  fullScreen();
   smooth();//NI idea, lo meti por facha
   textAlign(CENTER, CENTER); //Centra el texto
-  //mi_puerto = new Serial(this, "COM5", 115200); //Aqui lo llamo al arduino y le pido los valores que tiene
-  //mi_puerto.bufferUntil('\n');  // Recibiendo los datos de Arduino
+  mi_puerto = new Serial(this, "COM5", 115200); //Aqui lo llamo al arduino y le pido los valores que tiene
+  mi_puerto.bufferUntil('\n');  // Recibiendo los datos de Arduino
 }
 
 void draw() {
   background(0);  
-  translate(width / 2 + 150, height / 2);  // Desplazar todo hacia la derecha
+  translate(width / 2 + 250, height / 2);  // Desplazar todo hacia la derecha
   
   // Dibujar el círculo en el centro y rotarlo con el potenciomnetro
   pushMatrix();
@@ -151,7 +151,7 @@ void drawLeftRectangle() {
   noFill();  // Sin relleno
   stroke(255, 255, 255);  // Bordes rojos
   strokeWeight(3);  // Grosor del borde
-  translate(-width + 270, -70); //Translado todo a la izquierda del cuadro
+  translate(-750, -75); //Translado todo a la izquierda del cuadro
   rect(0, 0, xRec, yRec, 10);  // Rectángulo más pequeño y centrado en el eje vertical
   
   //Valores de separacion de los textos
@@ -174,7 +174,7 @@ void drawLeftRectangle() {
   text("DISTANCE", col + espacio + linea / 2, yRec / 2 - 20);  // Texto de la distancia de la aeronave con respecto al VOR
   
   fill(yellowText);  // Color amarillo para los valores
-  text(distance + " nm", col + espacio + linea / 2, yRec / 2 + 10);  // Texto del valor de la distancia de la aeronave con respecto al VOR
+  text(distance * 1.852 + " nm", col + espacio + linea / 2, yRec / 2 + 10);  // Texto del valor de la distancia de la aeronave con respecto al VOR
 
   // Segundo bloque de texto para Speed
   fill(redText);  // Color rojo para el enunciado
@@ -188,7 +188,7 @@ void drawLeftRectangle() {
   text("TIME", col + espacio + linea + espacio + linea + espacio + linea / 2, yRec / 2 - 20); // Texto del tiempo de llegada
   
   fill(yellowText);  // Color amarillo para el valor
-  text((distance * 100) + " min", col + espacio + linea + espacio + linea + espacio + linea / 2, yRec / 2 + 10); // Texto del valor del tiempo de llegada
+  text((distance * 1.852 / 185.2) + " Horas", col + espacio + linea + espacio + linea + espacio + linea / 2, yRec / 2 + 10); // Texto del valor del tiempo de llegada
   
   
   fill(255, 255, 255);
@@ -210,9 +210,9 @@ void serialEvent(Serial mi_puerto) {
     String[] values = trim(split(serialData, ','));  // Divide los valores recibidos
     //Comprueba si los valores recibidos son mayores a 3 elementos
     if (values.length == 3) {
-      radial = float(values[0]);  // Primer valor es el del potenciómetro
-      x = int(values[1]);         // Segundo valor es el motor paso a paso
-      if (int(values[2]) != 0){distance = int(values[2]);}  // Tercer valor es el sensor ultrasonico
+      if (int(values[1]) != 0){distance = int(values[1]);}  // Primer valor es el ultrasonico
+      x = int(values[0]);         // Segundo valor es el motor paso a paso
+      radial = float(values[2]);  // Tercer valor es el del potenciómetro
     }
   }
 }
