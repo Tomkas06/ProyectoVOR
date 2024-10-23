@@ -1,48 +1,33 @@
 #include <Arduino.h>
-#include "BasicStepperDriver.h"
+#include <BasicStepperDriver.h>  // Incluir la librería StepperDriver
 
-#define MOTOR_STEPS 200  // Pasos por revolución (200 pasos = 1.8° por paso)
-#define RPM 120
-#define MICROSTEPS 1
+// Definir los parámetros del motor paso a paso
+#define MOTOR_STEPS 200   // Pasos por revolución del motor (usualmente 200)
+#define RPM 60            // Velocidad del motor en RPM
+#define DIR_PIN 5         // Pin de dirección
+#define STEP_PIN 4        // Pin de paso
 
-#define DIR_PIN 5
-#define STEP_PIN 4
-
+// Crear una instancia del controlador del motor
 BasicStepperDriver stepper(MOTOR_STEPS, DIR_PIN, STEP_PIN);
 
-int stepCount = 0;  // Contador de pasos
-int totalSteps = 200;  // Pasos para una vuelta completa
-
-// Variable para almacenar el ángulo en grados
-float currentAngle = 0;
-
 void setup() {
-    stepper.begin(RPM, MICROSTEPS);
-    Serial.begin(115200);  // Inicia la comunicación con el Monitor Serial
+  // Inicializar el motor con la velocidad y el modo de microstepping deseado
+  stepper.begin(RPM, 1);  // 1 = modo de paso completo (full step)
+
+  Serial.begin(115200);
+  Serial.println("Iniciando motor paso a paso...");
 }
 
 void loop() {
-    // Mover en incrementos de 9 grados (5 pasos)
-    if (stepCount < totalSteps) {
-        stepper.move(5);  // Mover 5 pasos = 9 grados
-        stepCount += 5;   // Aumenta el contador de pasos
-        currentAngle = stepCount * 1.8;  // Calcula el ángulo actual
-    } 
-    // Cuando ha completado una vuelta completa, moverse en sentido opuesto
-    else if (stepCount >= totalSteps && stepCount < totalSteps * 2) {
-        stepper.move(-5);  // Mover en sentido inverso 5 pasos = 9 grados hacia atrás
-        stepCount += 5;    // Contador sigue aumentando en pasos negativos
-        currentAngle = 360 - (stepCount - totalSteps) * 1.8;  // Calcula el ángulo en reversa
-    } 
-    
-    // Si ya ha hecho 360 grados en ambos sentidos, reinicia el ciclo
-    if (stepCount >= totalSteps * 2) {
-        stepCount = 0;  // Reinicia el conteo de pasos
-        delay(2000);    // Pausa de 2 segundos
-    }
+  // Hacer una revolución completa en el sentido horario
+  Serial.println("Rotando 360 grados en sentido horario...");
+  stepper.rotate(360);  // Gira 360 grados
 
-    // Imprime el ángulo actual en el Monitor Serial
-    Serial.println(currentAngle);
-    
-    delay(500);  // Pausa entre movimientos
+  delay(2000);  // Esperar 2 segundos
+
+  // Hacer una revolución completa en el sentido antihorario
+  Serial.println("Rotando 360 grados en sentido antihorario...");
+  stepper.rotate(-360);  // Gira 360 grados en el sentido inverso
+
+  delay(2000);  // Esperar 2 segundos
 }

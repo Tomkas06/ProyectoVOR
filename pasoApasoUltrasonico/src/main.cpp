@@ -1,17 +1,16 @@
-#include <Arduino.h>
 #include <NewPing.h>        // Librería para manejar el sensor ultrasónico
 #include <BasicStepperDriver.h>  // Librería para controlar el motor paso a paso
 
 // Definiciones del motor paso a paso
 #define MOTOR_STEPS 200         // Pasos por revolución del motor (usualmente 200)
 #define RPM 120                 // Revoluciones por minuto
-#define MICROSTEPS 1            // Modo de microstepping (1=full step, 2=half step, etc.)
-#define DIR_PIN 5               // Pin de dirección para el A4988
-#define STEP_PIN 4              // Pin de paso para el A4988
+#define MICROSTEPS 1            // Modo de microstepping (Full Step)
+#define DIR_PIN 5               // Pin de dirección
+#define STEP_PIN 4              // Pin de paso
 
 // Definiciones del sensor ultrasónico
-#define TRIGGER_PIN 12          // Pin del trigger (disparo) del sensor ultrasónico
-#define ECHO_PIN 11             // Pin del echo (respuesta) del sensor ultrasónico
+#define TRIGGER_PIN 12          // Pin del trigger del sensor ultrasónico
+#define ECHO_PIN 13             // Pin del echo del sensor ultrasónico
 #define MAX_DISTANCE 200        // Máxima distancia a detectar en cm
 
 // Inicialización del motor y del sensor
@@ -25,19 +24,20 @@ int currentAngle = 0;           // Ángulo actual del motor
 int previousAngle = -1;         // Ángulo anterior del motor
 int distance = 0;               // Distancia medida por el sensor
 
+// Función para redondear a múltiplos de 9
+int roundToMultipleOf9(int value) {
+  return round(value / 9.0) * 9;
+}
+
 void setup() {
   Serial.begin(115200);
   stepper.begin(RPM, MICROSTEPS);  // Inicialización del motor paso a paso
 }
 
-int roundToMultipleOf9(int value) {
-  return round(value / 9.0) * 9;
-}
-
 void loop() {
-  for (int i = 0; i < 40; i++) {   // Mueve el motor paso a paso en incrementos de 9 grados (360/9 = 40 pasos)
+  for (int i = 0; i < 40; i++) {   // Mueve el motor en incrementos de 9 grados
     currentAngle = i * 9;          // Calcula el ángulo actual
-    stepper.move(50);              // Movimiento en pasos (50 pasos = 9 grados para un motor de 200 pasos/rev)
+    stepper.move(5);               // Movimiento en Full Step (5 pasos = 9 grados)
 
     // Medir la distancia con el sensor ultrasónico
     distance = sonar.ping_cm();
@@ -65,7 +65,7 @@ void loop() {
   // Invertir el movimiento del motor para una vuelta completa en sentido opuesto
   for (int i = 39; i >= 0; i--) {
     currentAngle = i * 9;
-    stepper.move(-50);  // Movimiento inverso
+    stepper.move(-5);  // Movimiento inverso
 
     distance = sonar.ping_cm();
     
@@ -88,6 +88,3 @@ void loop() {
     delay(100); // Pausa
   }
 }
-
-// Función para redondear a múltiplos de 9
-
