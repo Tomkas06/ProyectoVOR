@@ -5,8 +5,8 @@
 #define MOTOR_STEPS 200            // Pasos por revolución del motor
 #define RPM 120                    // Revoluciones por minuto
 #define MICROSTEPS 1               // Modo de microstepping (Full Step)
-#define DIR_PIN 4                  // Pin de dirección
-#define STEP_PIN 5                 // Pin de paso
+#define DIR_PIN 5                  // Pin de dirección
+#define STEP_PIN 4                 // Pin de paso
 
 // Definiciones del sensor ultrasónico
 #define TRIGGER_PIN 18             // Pin del trigger del sensor ultrasónico
@@ -21,11 +21,12 @@ BasicStepperDriver stepper(MOTOR_STEPS, DIR_PIN, STEP_PIN);
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);
 
 long totalDegrees = 0;            // Suma de los ángulos detectados
-int sampleCount = 0;              // Número de muestras tomadas para el promedio
 int currentAngle = 0;             // Ángulo actual del motor
-int previousAngle = -1;           // Ángulo anterior del motor
+bool identificado = false;
+int distancia = 0;
 int distance = 0;                 // Distancia medida por el sensor
-int potValue = 0;                 // Valor del potenciómetro
+int potValue;                 // Valor del potenciómetro
+int angle;
 
 
 // Función para redondear a múltiplos de 9
@@ -45,57 +46,54 @@ void loop() {
     stepper.move(5);              // Movimiento en Full Step (5 pasos = 9 grados)
 
     distance = sonar.ping_cm();   // Medir la distancia con el sensor ultrasónico
-    potValue = 180; // Leer el valor del potenciómetro
+    potValue = analogRead(POT_PIN); // Leer el valor del potenciómetro
+    int mappedValue = map(potValue, 0, 4095, 0, 360);
+    angle = roundToMultipleOf9(mappedValue);
 
-    if (distance > 0) {           // Si detecta un objeto
-      totalDegrees += currentAngle;
-      sampleCount++;
-
-      if (currentAngle != previousAngle) {
-        int averageAngle = roundToMultipleOf9(totalDegrees / sampleCount);
-        // Imprime los valores juntos: ángulo promedio, distancia, valor del potenciómetro
-        Serial.print(averageAngle);
-        Serial.print(",");
-        Serial.print(distance);
-        Serial.print(",");
-        Serial.println(potValue);
-      }
-    } else {                      // Si no detecta el objeto, reinicia las variables
-      totalDegrees = 0;
-      sampleCount = 0;
+    if (distance > 0 && identificado == false) { 
+        identificado = true;          // Si detecta un objeto
+        totalDegrees = currentAngle;
+        distancia = distance;
     }
 
-    previousAngle = currentAngle;
+    Serial.print(totalDegrees);
+    Serial.print(",");
+    Serial.print(distancia);
+    Serial.print(",");
+    Serial.println(angle);
     delay(100); // Delay de 100 ms
   }
 
+  identificado = false;
+  totalDegrees = 0;
+  distancia = 0;
+
   // Invertir el movimiento del motor para una vuelta completa en sentido opuesto
-  for (int i = 39; i >= 0; i--) {
+  for (int i = 40; i >= 0; i--) {
     currentAngle = i * 9;
     stepper.move(-5);  // Movimiento inverso
 
     distance = sonar.ping_cm();
-    potValue = 180;
+    potValue = analogRead(POT_PIN); // Leer el valor del potenciómetro
+    int mappedValue = map(potValue, 0, 4095, 0, 360);
+    angle = roundToMultipleOf9(mappedValue);
 
-    if (distance > 0) {
-      totalDegrees += currentAngle;
-      sampleCount++;
-
-      if (currentAngle != previousAngle) {
-        int averageAngle = roundToMultipleOf9(totalDegrees / sampleCount);
-        Serial.print(averageAngle);
-        Serial.print(",");
-        Serial.print(distance);
-        Serial.print(",");
-        Serial.println(potValue);
-      }
-    } else {
-      totalDegrees = 0;
-      sampleCount = 0;
+    if (distance > 0 && identificado == false) { 
+        identificado = true;     
+        totalDegrees = currentAngle;
+        distancia = distance;
     }
 
-    previousAngle = currentAngle;
+    Serial.print(totalDegrees);
+    Serial.print(",");
+    Serial.print(distancia);
+    Serial.print(",");
+    Serial.println(angle);
     delay(100); // Delay de 100 ms
   }
+
+  identificado = false;
+  totalDegrees = 0;
+  distancia = 0;
 }
 
