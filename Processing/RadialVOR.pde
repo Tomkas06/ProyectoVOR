@@ -3,9 +3,14 @@ float angle = 0;
 float amplitude = 50; //No se, fue uno de los primeros vaores que estaban
 float radial = 0; //Valor actual del radial
 float distance = 200; //Valor de distancia dado por el ultrasonico
-int x = 180; //VAlores dados por el motor paso a paso, ¿Por que no lo llamo mas facil? no enias ganas
+int x = 180; //Valores dados por el motor paso a paso, ¿Por que no lo llamo mas facil? no enias ganas
 Serial mi_puerto;  // Inicializamos la variable mi_puerto
 String serialData = "";  // Para almacenar los datos seriales recibidos
+
+int lineUp = 0;
+int lineRh = 0;
+int lineDn = 0;
+int lineLh = 0;
 
 void setup() {
   //size(800, 700);  // Ventana más grande (ancho 800, alto 500)
@@ -18,15 +23,10 @@ void setup() {
 
 void draw() {
   background(0);  
-  translate(width / 2 + 250, height / 2);  // Desplazar todo hacia la derecha
+  translate(width / 2 + 450, height / 2);  // Desplazar todo hacia la derecha
   
   // Dibujar el círculo en el centro y rotarlo con el potenciomnetro
-  pushMatrix();
-  rotate(-radial * PI / 180); 
-  stroke(255);
-  strokeWeight(2);
-  fill(0);
-  ellipse(0, 0, 300, 300);
+  drawNDB();
 
   // Dibujar la rosa de los vientos
   drawCompass();
@@ -40,6 +40,17 @@ void draw() {
   
   // Dibujar el rectángulo en el lado izquierdo
   drawLeftRectangle();
+  
+  drawILS();
+}
+void drawNDB(){
+  strokeWeight(2);
+  pushMatrix();
+  rotate(-radial * PI / 180); 
+  stroke(255);
+  
+  fill(0);
+  ellipse(0, 0, 300, 300);
 }
 
 //Dibuja el compaz o rosa de los vientos
@@ -72,6 +83,87 @@ void drawCompass() {
   text("E", 170, 0);
   text("S", 0, 170);
   text("W", -170, 0);
+}
+
+void drawCompassILS() {
+  strokeWeight(1);
+  for (int i = 0; i < 360; i += 15) {  // Cambiado a 9 grados
+    float x1 = cos(radians(i - 90)) * 140;
+    float y1 = sin(radians(i - 90)) * 140;
+    float x2 = cos(radians(i - 90)) * 150;
+    float y2 = sin(radians(i - 90)) * 150;
+    line(x1, y1, x2, y2);
+
+    // Dibujar etiquetas de grados
+    float xLabel = cos(radians(i - 90)) * 120;
+    float yLabel = sin(radians(i - 90)) * 120;
+    fill(255);
+    textSize(12);
+    text(i, xLabel, yLabel); 
+  }
+
+  // Dibujar indicadores principales (N, E, S, W)
+  textSize(16);
+  fill(255);
+  text("N", 0, -170);
+  text("E", 170, 0);
+  text("S", 0, 170);
+  text("W", -170, 0);
+}
+
+void drawILS(){
+  strokeWeight(2);
+  translate(625, 75);
+  ellipse(0, 0, 300, 300);
+  pushMatrix();
+  rotate(-radial * PI / 180); 
+  stroke(255);
+  
+  fill(0);
+
+  // Dibujar la rosa de los vientos
+  drawCompassILS();
+  popMatrix();
+
+  aproxILS();
+
+  // Dibuja la línea horizontal
+  horizontalPoints();
+  verticalPoints();
+  drawCenterILS();
+  
+}
+
+void aproxILS(){
+  
+  float y1 = -100;
+  
+  fill(255, 255, 0); 
+  noStroke();
+  triangle(-10, y1, 10, y1, 0, y1 - 20);
+  
+  stroke(255, 255, 255);
+  
+  ILSlines();
+  
+}
+
+void ILSlines(){
+  strokeWeight(2);  
+  
+  stroke(0, 255, 0);
+  
+  if(lineUp == 1){line(-90, -40, 90, -40);}
+  else if(lineDn == 1){line(-90, 40, 90, 40);}///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  else{line(100, 0, -100, 0);}
+  
+  if(lineRh == 1){line(75, 80, 75, -80);}
+  else if(lineLh == 1){line(-75, 80, -75, -80);}///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  else{line(0, 100, 0, -100);}
+  
+  //line(0, 100, 0, -100); //Centrada vertical
+  //line(100, 0, -100, 0); //Centrada horizontal
+  
 }
 
 //Dibuja la flecha vertical
@@ -114,12 +206,31 @@ void keyPressed() {
 
 //Funcion que dibuja los ciculos horinzoltales de la rosa de los vientos
 void horizontalPoints() {
+  noStroke();
+  
   fill(255, 255, 255);
   for (int i = 2; i <= 10; i += 2) {
     circle(i * 10, 0, 5);
     circle(-i * 10, 0, 5);
   }
 }
+
+void verticalPoints(){
+  noStroke();
+  
+  fill(255, 255, 255);
+  for (int i = 2; i <= 10; i += 2) {
+    circle(0, i * 10, 5);
+    circle(0, -i * 10, 5);
+  }
+}
+
+void drawCenterILS(){
+  noFill();
+  circle(0, 0, 15);
+  stroke(255, 255, 255);
+}
+
 
 //Funcion que dibuja la barra de aproximacion, moviendose hacia dentro si se acerca o hacia afuera si se aleja
 //PROHIBIDO PREGUNTAR QUE HACE CADA COSA
@@ -151,7 +262,7 @@ void drawLeftRectangle() {
   noFill();  // Sin relleno
   stroke(255, 255, 255);  // Bordes rojos
   strokeWeight(3);  // Grosor del borde
-  translate(-750, -75); //Translado todo a la izquierda del cuadro
+  translate(-1100, -75); //Translado todo a la izquierda del cuadro
   rect(0, 0, xRec, yRec, 10);  // Rectángulo más pequeño y centrado en el eje vertical
   
   //Valores de separacion de los textos
@@ -209,10 +320,14 @@ void serialEvent(Serial mi_puerto) {
   if (serialData != null) {
     String[] values = trim(split(serialData, ','));  // Divide los valores recibidos
     //Comprueba si los valores recibidos son mayores a 3 elementos
-    if (values.length == 3) {
-      if (int(values[1]) != 0){distance = int(values[1]);}  // Primer valor es el ultrasonico
+    if (values.length == 7) {
       x = int(values[0]);         // Segundo valor es el motor paso a paso
+      if (int(values[1]) != 0){distance = int(values[1]);}  // Primer valor es el ultrasonico
       radial = float(values[2]);  // Tercer valor es el del potenciómetro
+      lineUp = int(values[3]);
+      lineRh = int(values[4]);
+      lineDn = int(values[5]);
+      lineLh = int(values[6]);
     }
   }
 }
