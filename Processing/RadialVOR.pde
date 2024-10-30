@@ -17,7 +17,7 @@ void setup() {
   fullScreen();
   smooth();//NI idea, lo meti por facha
   textAlign(CENTER, CENTER); //Centra el texto
-  mi_puerto = new Serial(this, "COM5", 115200); //Aqui lo llamo al arduino y le pido los valores que tiene
+  mi_puerto = new Serial(this, "COM5", 9600); //Aqui lo llamo al arduino y le pido los valores que tiene
   mi_puerto.bufferUntil('\n');  // Recibiendo los datos de Arduino
 }
 
@@ -152,9 +152,8 @@ void ILSlines(){
   strokeWeight(2);  
   
   stroke(0, 255, 0);
-  
-  if(lineUp == 1){line(-90, -40, 90, -40);}
-  else if(lineDn == 1){line(-90, 40, 90, 40);}///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  if(lineDn == 1){line(-90, 40, 90, 40);}///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  else if(lineUp == 1){line(-90, -40, 90, -40);}
   else{line(100, 0, -100, 0);}
   
   if(lineRh == 1){line(75, 80, 75, -80);}
