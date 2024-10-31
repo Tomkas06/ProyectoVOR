@@ -41,10 +41,10 @@ void setup() {
  
 void loop() {
   myData.id = 1;
-  myData.x = random(0,50);
-  myData.y = random(0,50);
-  myData.z = random(0,50);
-  myData.w = random(0,50);
+  myData.x = 1;
+  myData.y = 1;
+  myData.z = 0;
+  myData.w = 0;
 
   esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
    

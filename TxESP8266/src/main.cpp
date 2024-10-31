@@ -36,10 +36,10 @@ void setup() {
  
 void loop() {
   myData.id = BOARD_ID;
-  myData.x = random(1, 50);
-  myData.y = random(1, 50);
-  myData.z = random(1, 50);
-  myData.w = random(1, 50);
+  myData.x = 180;
+  myData.y = 100;
+  myData.z = 188;
+  myData.w = 0;
 
   esp_now_send(0, (uint8_t *) &myData, sizeof(myData));
   delay(100);

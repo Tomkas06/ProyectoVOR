@@ -1,10 +1,10 @@
 #include <Arduino.h>
 
-int potPin = 34;   // Pin donde está conectado el potenciómetro
+int potPin = A0;   // Pin donde está conectado el potenciómetro
 int potValue;      // Variable para almacenar el valor del potenciómetro
 int angle;         // Variable para almacenar el ángulo del potenciómetro
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
 }
 
 void loop() {
