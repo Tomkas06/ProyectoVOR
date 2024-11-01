@@ -13,7 +13,7 @@ void loop() {
   Serial.print("El analogo es: ");
   Serial.println(potValue);
            
-  int mappedValue = map(potValue, 0, 4095, 0, 360); 
+  int mappedValue = map(potValue, 0, 1024, 0, 360); 
   angle = (mappedValue / 9) * 9;  // Redondear al múltiplo de 9 más cercano
   
   // Enviar ambos valores a Processing separados por una coma
