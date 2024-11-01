@@ -10,22 +10,12 @@
 BasicStepperDriver stepper(MOTOR_STEPS, DIR_PIN, STEP_PIN);
 
 void setup() {
-    Serial.begin(115200);
+    Serial.begin(9600);
     stepper.begin(RPM, MICROSTEPS);  // Inicializa el motor a la velocidad y modo de paso completo
 }
 
 void loop() {
-    for (int i = 0; i < 40; i++) {      // 40 veces para completar una vuelta de 360 grados
-        stepper.rotate(9);              // Rota 9 grados en sentido horario
-        delay(500);                     // Pausa de medio segundo entre pasos (ajústala según tus necesidades)
-    }
-
-    delay(1000);                         // Pausa de un segundo después de completar una vuelta
-
-    for (int i = 0; i < 40; i++) {      // 40 veces en sentido opuesto para completar una vuelta en sentido antihorario
-        stepper.rotate(-9);             // Rota 9 grados en sentido antihorario
-        delay(500);                     // Pausa de medio segundo entre pasos
-    }
+    stepper.rotate(9); 
 
     delay(1000);                         // Pausa antes de repetir
 }

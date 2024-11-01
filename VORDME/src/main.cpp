@@ -28,7 +28,7 @@ struct_message myData;
 // Definiciones del sensor ultrasónico
 #define TRIGGER_PIN 14             // Pin del trigger del sensor ultrasónico (D5)
 #define ECHO_PIN 12                // Pin del echo del sensor ultrasónico (D6)
-#define MAX_DISTANCE 100         // Máxima distancia a detectar en cm
+#define MAX_DISTANCE 20         // Máxima distancia a detectar en cm
 
 // Pin del potenciómetro
 #define POT_PIN A0
