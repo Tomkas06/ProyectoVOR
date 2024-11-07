@@ -5,7 +5,7 @@
 #define TRIGGER_PIN1  14  // Trigger es el que envia el sonido (D5)
 #define ECHO_PIN1     12  // Echo es el que escuha el sonido(D6)
 
-#define MAX_DISTANCE 100 //Se establece la distancia maxima del sensor
+#define MAX_DISTANCE 100 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
 
 NewPing sonar(TRIGGER_PIN1, ECHO_PIN1, MAX_DISTANCE); //Se configura el ultrasonico
 
