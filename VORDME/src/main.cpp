@@ -1,13 +1,16 @@
+//Se añaden las librerias para el modo de comunicacion
 #include <ESP8266WiFi.h>
 #include <espnow.h>
 
+//Se añaden las librerias para el ultrasonico y el paso a paso
 #include <NewPing.h>              // Librería para manejar el sensor ultrasónico
 #include <BasicStepperDriver.h>    // Librería para controlar el motor paso a paso
 
-//Definiciones del ESPNOW
+//Se registra el codigo de la placa
 uint8_t broadcastAddress[] = {0xE0, 0x98, 0x06, 0x99, 0xA2, 0x1C};
 #define BOARD_ID 2
 
+//Se crea la estrucura del mensaje
 typedef struct struct_message {
     int id;
     int x;
@@ -28,7 +31,7 @@ struct_message myData;
 // Definiciones del sensor ultrasónico
 #define TRIGGER_PIN 14             // Pin del trigger del sensor ultrasónico (D5)
 #define ECHO_PIN 12                // Pin del echo del sensor ultrasónico (D6)
-#define MAX_DISTANCE 20         // Máxima distancia a detectar en cm
+#define MAX_DISTANCE 50         // Máxima distancia a detectar en cm
 
 // Pin del potenciómetro
 #define POT_PIN A0
@@ -45,14 +48,15 @@ int distance = 0;                 // Distancia medida por el sensor
 int potValue;                 // Valor del potenciómetro
 int angle;
 
+//Funcion para enviar el mensaje
 void OnDataSent(uint8_t *mac_addr, uint8_t sendStatus) {
   Serial.print("\r\nLast Packet Send Status: ");
   Serial.println(sendStatus == 0 ? "Delivery success" : "Delivery fail");
 }
 
-// Función para redondear a múltiplos de 9
-int roundToMultipleOf9(int value) {
-  return round(value / 9.0) * 9;
+// Función para redondear a múltiplos de 15
+int roundToMultipleOf15(int value) {
+  return round(value / 15.0) * 15;
 }
 
 
@@ -61,11 +65,13 @@ void setup() {
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();
 
+  //Comprueba si se puedo iniciar el modo de comunicacion inalambrica
   if (esp_now_init() != 0) {
     Serial.println("Error initializing ESP-NOW");
     return;
   } 
 
+  //Verifica si se pudo conectar con la placa receptora
   esp_now_set_self_role(ESP_NOW_ROLE_CONTROLLER);
   esp_now_register_send_cb(OnDataSent);
   esp_now_add_peer(broadcastAddress, ESP_NOW_ROLE_SLAVE, 1, NULL, 0);
@@ -74,21 +80,23 @@ void setup() {
 }
 
 void loop() {
-  for (int i = 0; i < 40; i++) {  // Mueve el motor en incrementos de 9 grados
-    currentAngle = i * 9;         // Calcula el ángulo actual
-    stepper.move(5);              // Movimiento en Full Step (5 pasos = 9 grados)
+  for (int i = 0; i < 24; i++) {  // Mueve el motor en incrementos de 15 grados
+    currentAngle = i * 15;         // Calcula el ángulo actual
+    stepper.rotate(15);              //Mueve el motor 15 grados
 
     distance = sonar.ping_cm();   // Medir la distancia con el sensor ultrasónico
     potValue = analogRead(POT_PIN); // Leer el valor del potenciómetro
-    int mappedValue = map(potValue, 0, 1024, 0, 360);
-    angle = roundToMultipleOf9(mappedValue);
+    int mappedValue = map(potValue, 0, 1024, 0, 360); //Mapea el valor del potenciometro
+    angle = roundToMultipleOf15(mappedValue); //Lo redondondea
 
+    //Verifica si hay un objeto y si no se habia detectado antes
     if (distance > 0 && identificado == false) { 
         identificado = true;          // Si detecta un objeto
         totalDegrees = currentAngle;
         distancia = distance;
     }
 
+    //Imprime los valores para verificar que todo funcione
     Serial.print(totalDegrees);
     Serial.print(",");
     Serial.print(distancia);
@@ -101,23 +109,26 @@ void loop() {
     myData.z = angle;
     myData.w = 0;
 
+    //Envia los valores
     esp_now_send(0, (uint8_t *) &myData, sizeof(myData));
     delay(100); // Delay de 100 ms
   }
 
+  //Reinicia las variables
   identificado = false;
   totalDegrees = 0;
   distancia = 0;
-
+  
+  //A continuacion lo que sigue es lo mismo que arriba solo que en vez de 0 a 360, es de 360 a 0
   // Invertir el movimiento del motor para una vuelta completa en sentido opuesto
-  for (int i = 40; i >= 0; i--) {
-    currentAngle = i * 9;
-    stepper.move(-5);  // Movimiento inverso
+  for (int i = 24; i >= 0; i--) {
+    currentAngle = i * 15;
+    stepper.rotate(-15);  // Movimiento inverso
 
     distance = sonar.ping_cm();
     potValue = analogRead(POT_PIN); // Leer el valor del potenciómetro
     int mappedValue = map(potValue, 0, 1024, 0, 360);
-    angle = roundToMultipleOf9(mappedValue);
+    angle = roundToMultipleOf15(mappedValue);
 
     if (distance > 0 && identificado == false) { 
         identificado = true;     

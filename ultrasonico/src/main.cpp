@@ -1,18 +1,20 @@
+//Se incluye la libreria para controlar el ultrasonico
 #include <NewPing.h>
 
-#define TRIGGER_PIN1  14  // D5
-#define ECHO_PIN1     12  // D6
+//Se definen los pines del ultrasonico
+#define TRIGGER_PIN1  14  // Trigger es el que envia el sonido (D5)
+#define ECHO_PIN1     12  // Echo es el que escuha el sonido(D6)
 
-#define MAX_DISTANCE 100 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
+#define MAX_DISTANCE 100 //Se establece la distancia maxima del sensor
 
-NewPing sonar(TRIGGER_PIN1, ECHO_PIN1, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
+NewPing sonar(TRIGGER_PIN1, ECHO_PIN1, MAX_DISTANCE); //Se configura el ultrasonico
 
 void setup() {
-  Serial.begin(9600); // Open serial monitor at 115200 baud to see ping results.
+  Serial.begin(9600); //Abre monitor serie a 9600 (baudios)
 }
 
 void loop() {
-
+  //Imprime por consola la distancia del sensor al objeto
   Serial.println(sonar.ping_cm());
   delay(1000);
 }

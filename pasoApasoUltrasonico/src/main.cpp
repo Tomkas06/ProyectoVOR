@@ -20,13 +20,13 @@
 BasicStepperDriver stepper(MOTOR_STEPS, DIR_PIN, STEP_PIN);
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);
 
-long totalDegrees = 0;            // Suma de los ángulos detectados
+long totalDegrees = 0;            //Grados totales hechos por el motor
 int currentAngle = 0;             // Ángulo actual del motor
-bool identificado = false;
-int distancia = 0;
-int distance = 0;                 // Distancia medida por el sensor
+bool identificado = false;        //Verifica si se detecto un objeto o no
+int distancia = 0;                //Guarda la distancia del sensor
+int distance = 0;                 // Distancia medida por el sensor (LO MISMO QUE ARRIBA PERO EN ENGLISH)
 int potValue;                 // Valor del potenciómetro
-int angle;
+int angle;                    //Angulo del potenciometros
 
 
 // Función para redondear a múltiplos de 9
@@ -39,6 +39,18 @@ void setup() {
   Serial.begin(115200);
   stepper.begin(RPM, MICROSTEPS); // Inicialización del motor paso a paso
 }
+
+/*
+A partir de aqui para abajo no me importo comentar
+Entren a VOR/DME y ahi esta
+no me voy a disculpar porque es una banda
+quiero hacer otra cosa ademas
+...
+...
+...
+...
+Bueno, a seguir trabajando
+*/
 
 void loop() {
   for (int i = 0; i < 40; i++) {  // Mueve el motor en incrementos de 9 grados
