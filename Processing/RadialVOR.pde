@@ -3,7 +3,7 @@ float angle = 0;
 float amplitude = 50; //No se, fue uno de los primeros vaores que estaban
 float radial = 0; //Valor actual del radial
 float distance = 200; //Valor de distancia dado por el ultrasonico
-int x = 180; //Valores dados por el motor paso a paso, ¿Por que no lo llamo mas facil? no enias ganas
+int x = 0; //Valores dados por el motor paso a paso, ¿Por que no lo llamo mas facil? no enias ganas
 Serial mi_puerto;  // Inicializamos la variable mi_puerto
 String serialData = "";  // Para almacenar los datos seriales recibidos
 
@@ -14,11 +14,11 @@ int lineLh = 0;
 
 void setup() {
   //size(800, 700);  // Ventana más grande (ancho 800, alto 500)
-  fullScreen();
+  fullScreen(2);
   smooth();//NI idea, lo meti por facha
   textAlign(CENTER, CENTER); //Centra el texto
-  mi_puerto = new Serial(this, "COM5", 9600); //Aqui lo llamo al arduino y le pido los valores que tiene
-  mi_puerto.bufferUntil('\n');  // Recibiendo los datos de Arduino
+  //mi_puerto = new Serial(this, "COM9", 9600); //Aqui lo llamo al arduino y le pido los valores que tiene
+  //mi_puerto.bufferUntil('\n');  // Recibiendo los datos de Arduino
 }
 
 void draw() {
@@ -61,54 +61,62 @@ void drawNDB(){
 //Por lo que no digo nada
 void drawCompass() {
   strokeWeight(1);
-  for (int i = 0; i < 360; i += 9) {  // Cambiado a 9 grados
-    float x1 = cos(radians(i - 90)) * 140;
-    float y1 = sin(radians(i - 90)) * 140;
-    float x2 = cos(radians(i - 90)) * 150;
-    float y2 = sin(radians(i - 90)) * 150;
-    line(x1, y1, x2, y2);
-
-    // Dibujar etiquetas de grados
-    float xLabel = cos(radians(i - 90)) * 120;
-    float yLabel = sin(radians(i - 90)) * 120;
-    fill(255);
-    textSize(12);
-    text(i, xLabel, yLabel); 
+  
+  for (int i = 0; i < 360; i += 5) {  // Dibujar líneas cada 5 grados
+    float x1, y1, x2, y2;
+    
+    if (i % 15 == 0) {  // Línea principal (cada 15 grados)
+      x1 = cos(radians(i - 90)) * 140;
+      y1 = sin(radians(i - 90)) * 140;
+      x2 = cos(radians(i - 90)) * 150;
+      y2 = sin(radians(i - 90)) * 150;
+      line(x1, y1, x2, y2);
+      
+      // Dibujar etiquetas de grados reducidas a 2 dígitos
+      float xLabel = cos(radians(i - 90)) * 120;
+      float yLabel = sin(radians(i - 90)) * 120;
+      fill(255);
+      textSize(12);
+      text(i / 10, xLabel, yLabel);  // Divide por 10 para obtener dos dígitos
+    } else {  // Línea secundaria (cada 5 grados)
+      x1 = cos(radians(i - 90)) * 145;  // Un poco más corto
+      y1 = sin(radians(i - 90)) * 145;
+      x2 = cos(radians(i - 90)) * 150;
+      y2 = sin(radians(i - 90)) * 150;
+      line(x1, y1, x2, y2);
+    }
   }
-
-  // Dibujar indicadores principales (N, E, S, W)
-  textSize(16);
-  fill(255);
-  text("N", 0, -170);
-  text("E", 170, 0);
-  text("S", 0, 170);
-  text("W", -170, 0);
 }
+
+
 
 void drawCompassILS() {
   strokeWeight(1);
-  for (int i = 0; i < 360; i += 15) {  // Cambiado a 9 grados
-    float x1 = cos(radians(i - 90)) * 140;
-    float y1 = sin(radians(i - 90)) * 140;
-    float x2 = cos(radians(i - 90)) * 150;
-    float y2 = sin(radians(i - 90)) * 150;
-    line(x1, y1, x2, y2);
-
-    // Dibujar etiquetas de grados
-    float xLabel = cos(radians(i - 90)) * 120;
-    float yLabel = sin(radians(i - 90)) * 120;
-    fill(255);
-    textSize(12);
-    text(i, xLabel, yLabel); 
+  
+  for (int i = 0; i < 360; i += 5) {  // Dibujar líneas cada 5 grados
+    float x1, y1, x2, y2;
+    
+    if (i % 30 == 0) {  // Línea principal (cada 15 grados)
+      x1 = cos(radians(i - 90)) * 140;
+      y1 = sin(radians(i - 90)) * 140;
+      x2 = cos(radians(i - 90)) * 150;
+      y2 = sin(radians(i - 90)) * 150;
+      line(x1, y1, x2, y2);
+      
+      // Dibujar etiquetas de grados reducidas a 2 dígitos
+      float xLabel = cos(radians(i - 90)) * 120;
+      float yLabel = sin(radians(i - 90)) * 120;
+      fill(255);
+      textSize(12);
+      text(i / 10, xLabel, yLabel);  // Divide por 10 para obtener dos dígitos
+    } else {  // Línea secundaria (cada 5 grados)
+      x1 = cos(radians(i - 90)) * 145;  // Un poco más corto
+      y1 = sin(radians(i - 90)) * 145;
+      x2 = cos(radians(i - 90)) * 150;
+      y2 = sin(radians(i - 90)) * 150;
+      line(x1, y1, x2, y2);
+    }
   }
-
-  // Dibujar indicadores principales (N, E, S, W)
-  textSize(16);
-  fill(255);
-  text("N", 0, -170);
-  text("E", 170, 0);
-  text("S", 0, 170);
-  text("W", -170, 0);
 }
 
 void drawILS(){
@@ -198,7 +206,7 @@ void keyPressed() {
     if (radial == 360) {
       radial = 0.0;
     }
-    radial += 9; 
+    radial += 15; 
     println(radial);
   }
 }
@@ -330,3 +338,5 @@ void serialEvent(Serial mi_puerto) {
     }
   }
 }
+
+//https://acortar.link/eIC1AH
