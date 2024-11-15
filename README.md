@@ -1,5 +1,5 @@
-Bienvenido al codigo general del proyecto VOR/DME e ILS
+![imagen_2024-11-15_164338047](https://github.com/user-attachments/assets/3bbca8b2-6c7e-4abc-840c-2e0ba8f20682)
 
-Para acceder a los codigos, acceda a cualquier carpetam en su preferencia VORDME o ILS. Siga a la carpeta src, por utimo al archivo main.cpp
 
-Si su nombre concide ser Bernardi Rodrigo, los codigos se encuentran aqui: link caido
+
+GRACIAS TOTALES!!
